@@ -3,7 +3,7 @@
 Build a node application boilerplate by running one command!
 
 <!-- ![Live example of build-node-app running](gifs/tutorial.gif) -->
-![Live example of build-node-app running](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+![Live example of build-node-app running](https://github.com/hackersdotmu/build-node-app/blob/master/gifs/tutorial.gif)
 
 ## How to use?
 ```
