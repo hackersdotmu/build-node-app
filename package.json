@@ -1,0 +1,17 @@
+{
+  "name": "build-node-app",
+  "version": "1.2.2",
+  "description": "Build a nodejs-express app by running a single command!",
+  "main": "index.js",
+  "bin": {
+    "build-node-app": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hans Maulloo",
+  "license": "ISC",
+  "dependencies": {
+    "ora": "^5.4.0"
+  }
+}
