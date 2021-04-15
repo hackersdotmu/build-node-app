@@ -13,7 +13,7 @@ module.exports = {
             this.errorMsg = "Project name cannot be empty! \nUse --help to get examples\n";
             console.log(this.errorMsg)
             return false
-        } else if (projectName.startsWith('-') || projectName.startsWith('_') ) {
+        } else if (projectName.startsWith('-') || projectName.startsWith('_')) {
             this.errorMsg = "Project name cannot start with a symbol \n"
             console.log(this.errorMsg)
             return false
@@ -39,11 +39,23 @@ module.exports = {
     },
 
     createIndexFile: async (projectName) => {
+        var indexJS = `const express = require('express');
+        
+const app = express();
+app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.send('Hello World!')
+})
+
+app.listen(3000, function () {
+    console.log('Server is running: 3000');
+});`
         const createIndexFileLoader = ora({
             text: 'Creating index.js ' + projectName + '/index.js'
         });
         createIndexFileLoader.start()
-        await fs.copyFile('./files/index.js', './' + projectName + '/index.js', (err) => {
+        await fs.writeFile('./' + projectName + '/index.js', indexJS, (err) => {
             if (err) throw err;
             createIndexFileLoader.text = 'Created file: ' + projectName + '/.index.js'
             createIndexFileLoader.succeed()
