@@ -10,7 +10,12 @@ module.exports = {
     errorMsg: '',
     isProjectNameValid: (projectName) => {
         if (projectName === '-h' || projectName === '--help') {
-            console.log(`Usage: npx build-node-app [app-name]\n\nExample: npx build-node-app hello-world\n`)
+            console.log(`\nUsage: npx build-node-app [app-name] [arguments]\n\nExample: npx build-node-app hello-world\n`)
+            const helpTable = [
+                { arg: '-p', arg2: '--port', description: 'Specify port number to run app. Default port is 3000' },
+                { arg: '-v', arg2: '--version', description: 'Specify version of build-node-app' },
+            ];
+            console.table(helpTable);
             return false;
         } else if (projectName === '-v' || projectName === '--version') {
             console.log(`Version: ${version} \n`)
