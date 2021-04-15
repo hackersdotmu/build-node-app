@@ -25,6 +25,4 @@ hello-world
   - package.json
 ```
 
-[NPM Package](https://www.npmjs.com/package/build-node-app)
-
-[Github Repository](https://github.com/hackersdotmu/build-node-app/)
+[NPM Package](https://www.npmjs.com/package/build-node-app) - [Github Repository](https://github.com/hackersdotmu/build-node-app/)
