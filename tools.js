@@ -1,6 +1,7 @@
 const exec = require('child_process').exec;
 const fs = require('fs');
 const ora = require('ora');
+const version = require('./package.json').version;
 
 // var errorMsg = '';
 module.exports = {
@@ -8,6 +9,9 @@ module.exports = {
     isProjectNameValid: (projectName) => {
         if (projectName === '-h' || projectName === '--help') {
             console.log(`Usage: npx build-node-app [app-name]\n\nExample: npx build-node-app hello-world\n`)
+            return false;
+        } else if (projectName === '-v' || projectName === '--version') {
+            console.log(`Version: ${version} \n`)
             return false;
         } else if (projectName === '' || projectName === null || projectName === undefined) {
             this.errorMsg = "Project name cannot be empty! \nUse --help to get examples\n";

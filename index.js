@@ -8,6 +8,4 @@ if (tools.isProjectNameValid(projectName)) {
     tools.createBackendFolder(projectName)
         .then(() => tools.installExpress(projectName))
         .then(() => tools.createIndexFile(projectName))
-} else {
-    console.log(tools.errorMsg)
 }
