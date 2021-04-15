@@ -2,7 +2,9 @@ const exec = require('child_process').exec;
 const fs = require('fs');
 const ora = require('ora');
 const version = require('./package.json').version;
+const prompt = require('prompt-sync')({ sigint: true });
 
+var newPort = 3000
 // var errorMsg = '';
 module.exports = {
     errorMsg: '',
@@ -30,6 +32,30 @@ module.exports = {
         }
     },
 
+    isArgsValid: (inputArgs) => {
+        var pass;
+        const validArgs = ['-p', '--port'];
+        if (inputArgs.every((val) => validArgs.includes(val))) {
+            pass = true
+        } else {
+            console.log('Unknown argument detected!')
+            pass = false
+        }
+
+        if (pass) {
+            if (inputArgs.includes('-p') || inputArgs.includes('--port') ) {
+                const portNo = prompt('Enter port number: ');
+                if (portNo < 1024 || portNo > 9999) {
+                    console.log('Port Number must be between 1024 and 9999')
+                    pass = false
+                } else {
+                    newPort = portNo
+                }
+            }
+        }
+        return pass
+    },
+
     createBackendFolder: async (projectName) => {
         const createBackendFolderLoader = ora({
             text: 'Creating folder ' + projectName
@@ -52,8 +78,8 @@ app.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
-app.listen(3000, function () {
-    console.log('Server is running: 3000');
+app.listen(${newPort}, function () {
+    console.log('Server is running: ${newPort}');
 });`
         const createIndexFileLoader = ora({
             text: 'Creating index.js ' + projectName + '/index.js'
