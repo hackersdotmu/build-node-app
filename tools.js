@@ -4,7 +4,7 @@ const ora = require('ora');
 
 // var errorMsg = '';
 module.exports = {
-
+    errorMsg: '',
     isProjectNameValid: (projectName) => {
         if (projectName === '-h' || projectName === '--help') {
             console.log(`Usage: npx build-node-app [app-name]\n\nExample: npx build-node-app hello-world\n`)
@@ -13,8 +13,8 @@ module.exports = {
             this.errorMsg = "Project name cannot be empty! \nUse --help to get examples\n";
             console.log(this.errorMsg)
             return false
-        } else if (projectName.startsWith('-')) {
-            this.errorMsg = "Project name cannot start with '-' \n"
+        } else if (projectName.startsWith('-') || projectName.startsWith('_') ) {
+            this.errorMsg = "Project name cannot start with a symbol \n"
             console.log(this.errorMsg)
             return false
         } else if (!projectName.match("^[a-zA-Z0-9\-\_]*$")) {
@@ -27,35 +27,38 @@ module.exports = {
     },
 
     createBackendFolder: async (projectName) => {
-        var indexJsFile = `const express = require('express');
-            
-            const app = express();
-
-            app.use(express.json());
-
-            app.get('/', (req, res) => {
-                res.send('Hello World!')
-            })
-
-            app.listen(3000, function () {
-                console.log('Server is running: 3000');
-            });
-        `;
         const createBackendFolderLoader = ora({
             text: 'Creating folder ' + projectName
         });
-
         createBackendFolderLoader.start();
         await fs.mkdir('./' + projectName + '/', (err) => {
             if (err) throw err;
+            createBackendFolderLoader.text = 'Created folder: ' + projectName
+            createBackendFolderLoader.succeed()
+        })
+    },
+
+    createIndexFile: async (projectName) => {
+        const createIndexFileLoader = ora({
+            text: 'Creating index.js ' + projectName + '/index.js'
         });
-        await fs.writeFile('./' + projectName + '/index.js', indexJsFile, (err) => {
+        createIndexFileLoader.start()
+        await fs.copyFile('./files/index.js', './' + projectName + '/index.js', (err) => {
             if (err) throw err;
+            createIndexFileLoader.text = 'Created file: ' + projectName + '/.index.js'
+            createIndexFileLoader.succeed()
         });
+    },
+
+    installExpress: async (projectName) => {
+        const installExpressLoader = ora({
+            text: 'Installing Express '
+        });
+        installExpressLoader.start()
         await exec('cd ' + projectName + '/ && npm init -y && npm install express', (err) => {
             if (err) throw err;
-            createBackendFolderLoader.text = 'Created folder: ' + projectName + '\n\n Run the following command to serve your app live: \n > cd ' + projectName + ' && node index.js\n'
-            createBackendFolderLoader.succeed()
+            installExpressLoader.text = 'Installed Express. \n\nRun the following command to serve your app live: \n > cd ' + projectName + ' && node index.js\n'
+            installExpressLoader.succeed()
         })
     }
 }
