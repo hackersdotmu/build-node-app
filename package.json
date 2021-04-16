@@ -1,6 +1,6 @@
 {
   "name": "build-node-app",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Build a nodejs-express app by running a single command!",
   "main": "index.js",
   "repository": {

@@ -26,7 +26,7 @@ hello-world
 ```
 
 ## Arguments
-| Argument | Alternative argument | Description |
+| Arg | Argument | Description |
 | ----------- | ----------- | ----------- |
 | -p | --port | Specify port number to serve the app. Default is 3000 |
 | -md | --mongodb | Install and import mongodb to your app |

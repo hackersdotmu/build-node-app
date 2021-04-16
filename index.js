@@ -192,10 +192,10 @@ finalCheckLoader = (projectName) => {
 showHelp = () => {
     console.log(`\nUsage: npx build-node-app [app-name] [arguments]\n\nExample: npx build-node-app hello-world\n`)
     const helpTable = [
-        { arg: '-p', arg2: '--port', description: 'Specify port number to run app. Default port is 3000' },
-        { arg: '-md', arg2: '--mongodb', description: 'Install and import mongodb to your app' },
-        { arg: '-git', arg2: '--git', description: 'Initialise the project as git project. Add .git and .gitignore' },
-        { arg: '-v', arg2: '--version', description: 'Specify version of build-node-app' },
+        { arg: '-p', argument: '--port', description: 'Specify port number to run app. Default port is 3000' },
+        { arg: '-md', argument: '--mongodb', description: 'Install and import mongodb to your app' },
+        { arg: '-git', argument: '--git', description: 'Initialise the project as git project. Add .git and .gitignore' },
+        { arg: '-v', argument: '--version', description: 'Specify version of build-node-app' },
     ];
     console.table(helpTable);
 }
