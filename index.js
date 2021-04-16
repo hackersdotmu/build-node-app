@@ -11,6 +11,13 @@ var inputArgs = [];
 var newPort = 3000;
 var errorMsg = '';
 
+var isExpress = true;
+var isMongo = false;
+var isGit = false;
+
+const expressImport = "const express = require('express');\n"
+const mongoImport = "const MongoClient = require('mongodb').MongoClient;\n"
+
 process.argv.forEach((val, index) => {
     if (index > 2) {
         inputArgs.push(val)
@@ -19,13 +26,7 @@ process.argv.forEach((val, index) => {
 
 isProjectNameValid = (projectName) => {
     if (projectName === '-h' || projectName === '--help') {
-        console.log(`\nUsage: npx build-node-app [app-name] [arguments]\n\nExample: npx build-node-app hello-world\n`)
-        const helpTable = [
-            { arg: '-p', arg2: '--port', description: 'Specify port number to run app. Default port is 3000' },
-            { arg: '-git', arg2: '--git', description: 'Initialise the project as git project. Add .git and .gitignore' },
-            { arg: '-v', arg2: '--version', description: 'Specify version of build-node-app' },
-        ];
-        console.table(helpTable);
+        showHelp()
         return false;
     } else if (projectName === '-v' || projectName === '--version') {
         console.log(`Version: ${version} \n`)
@@ -49,11 +50,11 @@ isProjectNameValid = (projectName) => {
 
 isArgsValid = (inputArgs, projectName) => {
     var pass;
-    const validArgs = ['-p', '--port', '-git', '--git'];
+    const validArgs = ['-p', '--port', '-git', '--git', '-md', '--mongodb'];
     if (inputArgs.every((val) => validArgs.includes(val))) {
         pass = true
     } else {
-        console.log('Unknown argument detected!')
+        console.log('Unknown argument detected!\nConsider using --help\n')
         pass = false
     }
 
@@ -76,7 +77,10 @@ isArgsValid = (inputArgs, projectName) => {
             }
         }
         if (inputArgs.includes('-git') || inputArgs.includes('--git')) {
-            initialiseGit(projectName)
+            isGit = true;
+        }
+        if (inputArgs.includes('-md') || inputArgs.includes('--mongodb')) {
+            isMongo = true;
         }
     }
     return pass
@@ -86,59 +90,95 @@ createBackendFolder = async (projectName) => {
     const createBackendFolderLoader = ora({
         text: 'Creating folder ' + projectName
     });
-    createBackendFolderLoader.start();
-    await fs.mkdir('./' + projectName + '/', (err) => {
-        if (err) throw err;
-    });
-    var indexJS = `const express = require('express');
-
+    try {
+        createBackendFolderLoader.start();
+        await fs.mkdir('./' + projectName + '/', (err) => {
+            if (err) throw err;
+        });
+        var indexJS = `${isExpress ? expressImport : ''}${isMongo ? mongoImport : ''}
+    
 const app = express();
 app.use(express.json());
 
 app.get('/', (req, res) => {
-res.send('Hello World!')
+    res.send('Hello World!')
 })
 
 app.listen(${newPort}, function () {
-console.log('Server is running: ${newPort}');
+    console.log('Server is running: ${newPort}');
 });`
 
-    await fs.writeFile('./' + projectName + '/index.js', indexJS, (err) => {
-        if (err) throw err;
-    })
-        .then(createBackendFolderLoader.text = 'Created folder: ' + projectName)
-        .then(createBackendFolderLoader.succeed())
+        await fs.writeFile('./' + projectName + '/index.js', indexJS, (err) => {
+            if (err) throw err;
+        })
+            .then(createBackendFolderLoader.text = 'Created folder: ' + projectName)
+            .then(createBackendFolderLoader.succeed())
+    } catch (error) {
+        createBackendFolderLoader.text = 'Error creating folder ' + projectName +': Folder with same name detected!\n'
+        createBackendFolderLoader.fail()
+        process.exit(1)
+    }
 }
 
-installExpress = async (projectName) => {
-    const installExpressLoader = ora({
+initialiseExpress = async (projectName) => {
+    const initialiseExpressLoader = ora({
         text: 'Installing Express '
     });
-    installExpressLoader.start()
-    await exec('cd ' + projectName + '/ && npm init -y && npm install express', (err) => {
-        if (err) throw err;
-    })
-        .then(() => { installExpressLoader.text = 'Installed Express' })
-        .then(() => { installExpressLoader.succeed() })
+    try {
+        initialiseExpressLoader.start()
+        await exec('cd ' + projectName + '/ && npm init -y && npm install express', (err) => {
+            if (err) throw err;
+        })
+            .then(() => { initialiseExpressLoader.text = 'Installed Express' })
+            .then(() => { initialiseExpressLoader.succeed() })
+    } catch (error) {
+        initialiseExpressLoader.text = 'Error installing Express'
+        initialiseExpressLoader.fail()
+        process.exit(1)
+    }
 }
 
 initialiseGit = async (projectName) => {
     const initialiseGitLoader = ora({
         text: 'Initializing as a Git repository'
     });
-
-    initialiseGitLoader.start()
-    await exec('cd ' + projectName + '/ && git init', (err) => {
-        if (err) throw err;
-    })
-    var ignoreGit = `node_modules/
+    try {
+        initialiseGitLoader.start()
+        await exec('cd ' + projectName + '/ && git init', (err) => {
+            if (err) throw err;
+        })
+        var ignoreGit = `node_modules/
 package-lock.json
-    `
-    await fs.writeFile('./' + projectName + '/.gitignore', ignoreGit, (err) => {
-        if (err) throw err;
-    })
-    .then(() => initialiseGitLoader.text = 'Initialized as Git repository')
-    .then(() => initialiseGitLoader.succeed())
+        `
+        await fs.writeFile('./' + projectName + '/.gitignore', ignoreGit, (err) => {
+            if (err) throw err;
+        })
+            .then(() => initialiseGitLoader.text = 'initialised as Git repository')
+            .then(() => initialiseGitLoader.succeed())
+    } catch (error) {
+        initialiseGitLoader.text = 'Error initializing as git repository'
+        initialiseGitLoader.fail()
+        process.exit(1)
+    }
+}
+
+initialiseMongo = async (projectName) => {
+    const initialiseMongoLoader = ora({
+        text: 'Installing Mongodb'
+    });
+    try {
+        initialiseMongoLoader.start()
+        await exec('cd ' + projectName + '/ && npm install mongodb', (err) => {
+            if (err) throw err;
+        })
+            .then(() => initialiseMongoLoader.text = 'Installed Mongodb')
+            .then(() => initialiseMongoLoader.succeed())
+    } catch (error) {
+        initialiseMongoLoader.text = 'Error installing Mongodb'
+        initialiseMongoLoader.fail()
+        process.exit(1)
+    }
+
 }
 
 finalCheckLoader = (projectName) => {
@@ -149,12 +189,22 @@ finalCheckLoader = (projectName) => {
     finalCheckLoader.succeed()
 }
 
+showHelp = () => {
+    console.log(`\nUsage: npx build-node-app [app-name] [arguments]\n\nExample: npx build-node-app hello-world\n`)
+    const helpTable = [
+        { arg: '-p', arg2: '--port', description: 'Specify port number to run app. Default port is 3000' },
+        { arg: '-git', arg2: '--git', description: 'Initialise the project as git project. Add .git and .gitignore' },
+        { arg: '-v', arg2: '--version', description: 'Specify version of build-node-app' },
+    ];
+    console.table(helpTable);
+}
+
 if (isProjectNameValid(projectName)) {
     if (isArgsValid(inputArgs, projectName)) {
         createBackendFolder(projectName)
-            .then(() => installExpress(projectName))
+            .then(() => isExpress ? initialiseExpress(projectName) : null)
+            .then(() => isMongo ? initialiseMongo(projectName) : null)
+            .then(() => isGit ? initialiseGit(projectName) : null)
             .then(() => finalCheckLoader(projectName))
-    } else {
-        console.log('not pass')
     }
 }
