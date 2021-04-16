@@ -25,4 +25,12 @@ hello-world
   - package.json
 ```
 
+## Arguments
+| Argument | Alternative argument | Description |
+| ----------- | ----------- | ----------- |
+| -p | --port | Specify port number to serve the app. Default is 3000 |
+| -git | --git | Initialise the project as a git project. Add .git and .gitignore |
+| -v | --version | Specify version of app |
+
+
 [NPM Package](https://www.npmjs.com/package/build-node-app) - [Github Repository](https://github.com/hackersdotmu/build-node-app/)
