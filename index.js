@@ -48,7 +48,7 @@ isProjectNameValid = (projectName) => {
     }
 }
 
-isArgsValid = (inputArgs, projectName) => {
+isArgsValid = (inputArgs) => {
     var pass;
     const validArgs = ['-p', '--port', '-git', '--git', '-md', '--mongodb'];
     if (inputArgs.every((val) => validArgs.includes(val))) {
@@ -114,7 +114,7 @@ app.listen(${newPort}, function () {
             .then(createBackendFolderLoader.text = 'Created folder: ' + projectName)
             .then(createBackendFolderLoader.succeed())
     } catch (error) {
-        createBackendFolderLoader.text = 'Error creating folder ' + projectName +': Folder with same name detected!\n'
+        createBackendFolderLoader.text = 'Error creating folder: ' + projectName +'\n'
         createBackendFolderLoader.fail()
         process.exit(1)
     }
@@ -201,7 +201,7 @@ showHelp = () => {
 }
 
 if (isProjectNameValid(projectName)) {
-    if (isArgsValid(inputArgs, projectName)) {
+    if (isArgsValid(inputArgs)) {
         createBackendFolder(projectName)
             .then(() => isExpress ? initialiseExpress(projectName) : null)
             .then(() => isMongo ? initialiseMongo(projectName) : null)
