@@ -1,6 +1,6 @@
 {
   "name": "build-node-app",
-  "version": "1.5.5",
+  "version": "1.5.9",
   "description": "Build a nodejs-express app by running a single command!",
   "main": "index.js",
   "repository": {
@@ -16,6 +16,7 @@
   "author": "Hans Maulloo",
   "license": "ISC",
   "dependencies": {
+    "await-exec": "^0.1.2",
     "ora": "^5.4.0",
     "prompt-sync": "^4.2.0"
   }
