@@ -13,10 +13,12 @@ var errorMsg = '';
 
 var isExpress = true;
 var isMongo = false;
+var isMysql = false;
 var isGit = false;
 
 const expressImport = "const express = require('express');\n"
 const mongoImport = "const MongoClient = require('mongodb').MongoClient;\n"
+const mysqlImport = "const mysql = require('mysql');\n"
 
 process.argv.forEach((val, index) => {
     if (index > 2) {
@@ -50,7 +52,7 @@ isProjectNameValid = (projectName) => {
 
 isArgsValid = (inputArgs) => {
     var pass;
-    const validArgs = ['-p', '--port', '-git', '--git', '-md', '--mongodb'];
+    const validArgs = ['-p', '--port', '--git', '--mongodb', '--mysql'];
     if (inputArgs.every((val) => validArgs.includes(val))) {
         pass = true
     } else {
@@ -76,11 +78,15 @@ isArgsValid = (inputArgs) => {
                 }
             }
         }
-        if (inputArgs.includes('-git') || inputArgs.includes('--git')) {
+        if (inputArgs.includes('--git')) {
             isGit = true;
         }
-        if (inputArgs.includes('-md') || inputArgs.includes('--mongodb')) {
+        if (inputArgs.includes('--mongodb')) {
             isMongo = true;
+        }
+
+        if (inputArgs.includes('--mysql')) {
+            isMysql = true;
         }
     }
     return pass
@@ -95,7 +101,7 @@ createBackendFolder = async (projectName) => {
         await fs.mkdir('./' + projectName + '/', (err) => {
             if (err) throw err;
         });
-        var indexJS = `${isExpress ? expressImport : ''}${isMongo ? mongoImport : ''}
+        var indexJS = `${isExpress ? expressImport : ''}${isMongo ? mongoImport : ''}${isMysql ? mysqlImport : ''}
     
 const app = express();
 app.use(express.json());
@@ -114,7 +120,7 @@ app.listen(${newPort}, function () {
             .then(createBackendFolderLoader.text = 'Created folder: ' + projectName)
             .then(createBackendFolderLoader.succeed())
     } catch (error) {
-        createBackendFolderLoader.text = 'Error creating folder: ' + projectName +'\n'
+        createBackendFolderLoader.text = 'Error creating folder: ' + projectName + '\n'
         createBackendFolderLoader.fail()
         process.exit(1)
     }
@@ -181,6 +187,25 @@ initialiseMongo = async (projectName) => {
 
 }
 
+initialiseMysql = async (projectName) => {
+    const initialiseMysqlLoader = ora({
+        text: 'Installing MySQL'
+    });
+    try {
+        initialiseMysqlLoader.start()
+        await exec('cd ' + projectName + '/ && npm install mysql', (err) => {
+            if (err) throw err;
+        })
+            .then(() => initialiseMysqlLoader.text = 'Installed MySQL')
+            .then(() => initialiseMysqlLoader.succeed())
+    } catch (error) {
+        initialiseMysqlLoader.text = 'Error installing MySQL'
+        initialiseMysqlLoader.fail()
+        process.exit(1)
+    }
+
+}
+
 finalCheckLoader = (projectName) => {
     const finalCheckLoader = ora({
         text: 'Final checks'
@@ -193,8 +218,9 @@ showHelp = () => {
     console.log(`\nUsage: npx build-node-app [app-name] [arguments]\n\nExample: npx build-node-app hello-world\n`)
     const helpTable = [
         { arg: '-p', argument: '--port', description: 'Specify port number to run app. Default port is 3000' },
-        { arg: '-md', argument: '--mongodb', description: 'Install and import mongodb to your app' },
-        { arg: '-git', argument: '--git', description: 'Initialise the project as git project. Add .git and .gitignore' },
+        { arg: '', argument: '--mongodb', description: 'Install and import mongodb to your app' },
+        { arg: '', argument: '--mysql', description: 'Install and import mysql to your app' },
+        { arg: '', argument: '--git', description: 'Initialise the project as git project. Add .git and .gitignore' },
         { arg: '-v', argument: '--version', description: 'Specify version of build-node-app' },
     ];
     console.table(helpTable);
@@ -205,6 +231,7 @@ if (isProjectNameValid(projectName)) {
         createBackendFolder(projectName)
             .then(() => isExpress ? initialiseExpress(projectName) : null)
             .then(() => isMongo ? initialiseMongo(projectName) : null)
+            .then(() => isMysql ? initialiseMysql(projectName) : null)
             .then(() => isGit ? initialiseGit(projectName) : null)
             .then(() => finalCheckLoader(projectName))
     }
