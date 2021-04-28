@@ -31,6 +31,7 @@ hello-world
 | -p | --port | Specify port number to serve the app. Default is 3000 |
 |  | --mongodb | Install and import mongodb to your app |
 |  | --mysql | Install and import mysql to your app |
+|  | --cors | Install and import cors to your app |
 |  | --git | Initialise the project as a git project. Add .git and .gitignore |
 | -v | --version | Specify version of app |
 
