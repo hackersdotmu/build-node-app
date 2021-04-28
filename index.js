@@ -14,11 +14,13 @@ var errorMsg = '';
 var isExpress = true;
 var isMongo = false;
 var isMysql = false;
+var isCors = false;
 var isGit = false;
 
 const expressImport = "const express = require('express');\n"
 const mongoImport = "const MongoClient = require('mongodb').MongoClient;\n"
 const mysqlImport = "const mysql = require('mysql');\n"
+const corsImport = "const cors = require('cors');\n"
 
 process.argv.forEach((val, index) => {
     if (index > 2) {
@@ -52,7 +54,7 @@ isProjectNameValid = (projectName) => {
 
 isArgsValid = (inputArgs) => {
     var pass;
-    const validArgs = ['-p', '--port', '--git', '--mongodb', '--mysql'];
+    const validArgs = ['-p', '--port', '--git', '--mongodb', '--mysql', '--cors'];
     if (inputArgs.every((val) => validArgs.includes(val))) {
         pass = true
     } else {
@@ -87,6 +89,10 @@ isArgsValid = (inputArgs) => {
 
         if (inputArgs.includes('--mysql')) {
             isMysql = true;
+        }
+
+        if (inputArgs.includes('--cors')){
+            isCors = true
         }
     }
     return pass
@@ -206,6 +212,24 @@ initialiseMysql = async (projectName) => {
 
 }
 
+initialiseCors = async (projectName) => {
+    const initialiseCORSLoader = ora({
+        text: 'Installing CORS'
+    });
+    try {
+        initialiseCORSLoader.start()
+        await exec('cd ' + projectName + '/ && npm install cors', (err) => {
+            if (err) throw err;
+        })
+            .then(() => initialiseCORSLoader.text = 'Installed CORS')
+            .then(() => initialiseCORSLoader.succeed())
+    } catch (error) {
+        initialiseCORSLoader.text = 'Error installing CORS'
+        initialiseCORSLoader.fail()
+        process.exit(1)
+    }
+}
+
 finalCheckLoader = (projectName) => {
     const finalCheckLoader = ora({
         text: 'Final checks'
@@ -220,6 +244,7 @@ showHelp = () => {
         { arg: '-p', argument: '--port', description: 'Specify port number to run app. Default port is 3000' },
         { arg: '', argument: '--mongodb', description: 'Install and import mongodb to your app' },
         { arg: '', argument: '--mysql', description: 'Install and import mysql to your app' },
+        { arg: '', argument: '--cors', description: 'Install and import cors to your app' },
         { arg: '', argument: '--git', description: 'Initialise the project as git project. Add .git and .gitignore' },
         { arg: '-v', argument: '--version', description: 'Specify version of build-node-app' },
     ];
@@ -232,6 +257,7 @@ if (isProjectNameValid(projectName)) {
             .then(() => isExpress ? initialiseExpress(projectName) : null)
             .then(() => isMongo ? initialiseMongo(projectName) : null)
             .then(() => isMysql ? initialiseMysql(projectName) : null)
+            .then(() => isCors ? initialiseCors(projectName) : null)
             .then(() => isGit ? initialiseGit(projectName) : null)
             .then(() => finalCheckLoader(projectName))
     }
